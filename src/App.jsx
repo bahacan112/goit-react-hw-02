@@ -1,12 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Options from "./components/Options/Options";
 import Feedback from "./components/Feedback/FeedBack";
-
+import Notification from "./components/Notification/Notification";
+import Description from "./components/Description/Description";
 const App = () => {
-  const [feedback, setFeedback] = useState({ good: 0, neutral: 0, bad: 0 });
+  const [feedback, setFeedback] = useState(
+    JSON.parse(localStorage.getItem("feedback")) || {
+      good: 0,
+      neutral: 0,
+      bad: 0,
+    }
+  );
   const resetFeedback = () => {
     setFeedback({ good: 0, neutral: 0, bad: 0 });
   };
+
+  useEffect(() => {
+    localStorage.setItem("feedback", JSON.stringify(feedback));
+  }, [feedback]);
+
   const updateFeedback = (feedbackType) => {
     setFeedback((prevFeedback) => ({
       ...prevFeedback,
@@ -19,6 +31,7 @@ const App = () => {
 
   return (
     <div>
+      <Description />
       <h1>Please leave your feedback</h1>
       <Options
         options={["good", "neutral", "bad"]}
@@ -27,13 +40,17 @@ const App = () => {
         positivePercentage={positivePercentage}
         totalFeedback={totalFeedback}
       />
-      <Feedback
-        good={feedback.good}
-        neutral={feedback.neutral}
-        bad={feedback.bad}
-        totalFeedback={totalFeedback}
-        positivePercentage={positivePercentage}
-      />
+      {totalFeedback ? (
+        <Feedback
+          good={feedback.good}
+          neutral={feedback.neutral}
+          bad={feedback.bad}
+          totalFeedback={totalFeedback}
+          positivePercentage={positivePercentage}
+        />
+      ) : (
+        <Notification />
+      )}
     </div>
   );
 };
